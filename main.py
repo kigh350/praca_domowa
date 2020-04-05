@@ -62,7 +62,7 @@ class HelloResp(BaseModel):
 @app.get("/patient/{pk}", status_code=204)
 def receive_patient(pk: str):
     pk_int=int(pk)
-    if(pk_int in slownik_id.keys()):
+    if(pk_int in slownik_id.keys() and pk_int>0):
         zwroc = slownik_id[pk_int]
     else: 
         zwroc = {}
