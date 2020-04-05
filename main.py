@@ -65,7 +65,7 @@ def receive_patient(pk: str):
     if(pk_int in slownik_id.keys()):
         zwroc = slownik_id[pk_int]
     else: 
-        zwroc = "https://en.wikipedia.org/wiki/List_of_HTTP_status_codes"
+        zwroc = {}
     return zwroc
 
 
