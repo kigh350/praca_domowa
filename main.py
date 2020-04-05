@@ -49,10 +49,6 @@ def receive_patient(rq: im_nazw):
     slownik_id = {n: rq}
     slownik = im_nazw_Resp(id=n, patient=rq.dict())
     wynik = slownik.dict()
-    #wynik_str = str(wynik)
-    #file = open("patient.txt", "a") 
-    #file.write(wynik_str +"\n") 
-    #file.close() 
     n += 1
     return wynik
 
@@ -62,9 +58,10 @@ class HelloResp(BaseModel):
 @app.get("/patient/{pk}")
 async def receive_patient(pk: str):
     pk_int=int(pk)
-    if(pk_int not in slownik_id.keys()):
-        raise HTTPException(status_code=204, detail="Item not found")  
-    return slownik_id[pk_int]
+    if(pk_int in slownik_id.keys()):
+        return slownik_id[pk_int]
+    else: 
+        raise HTTPException(status_code=204) 
 
 
 
