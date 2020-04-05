@@ -1,5 +1,6 @@
 from typing import Dict
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+
 from pydantic import BaseModel
 #import sqlite3
 import os
@@ -58,15 +59,13 @@ def receive_patient(rq: im_nazw):
 class HelloResp(BaseModel):
     msg: str
 
-    
-@app.get("/patient/{pk}", status_code=204)
-def receive_patient(pk: str):
+@app.get("/patient/{pk}")
+async def receive_patient(pk: str):
     pk_int=int(pk)
-    if(pk_int in slownik_id.keys()):
-        zwroc = slownik_id[pk_int]
-    else: 
-        zwroc = {}
-    return zwroc
+    if(pk_int not in slownik_id.keys()):
+        raise HTTPException(status_code=204, detail="Item not found")  
+    return slownik_id[pk_int]
+
 
 
 
