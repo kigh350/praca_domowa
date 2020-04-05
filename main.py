@@ -59,7 +59,7 @@ class HelloResp(BaseModel):
     msg: str
 
     
-@app.get("/patient/{pk}")
+@app.get("/patient/{pk}", status_code=204)
 def receive_patient(pk: str):
     pk_int=int(pk)
     if(pk_int in slownik_id.keys()):
