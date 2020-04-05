@@ -26,15 +26,29 @@ def read_item():
 def read_item():
     return {"method": "PUT"}
 
-class imie_nazwisko(BaseModel):
+
+class im_nazw(BaseModel):
     name: str
     surename: str
 
-N=0
-@app.post("/patient", response_model=imie_nazwisko)
-def read_item(rq: imie_nazwisko):
-    N=N+1
-    return {"id": N, "patient": {"name": imie_nazwisko.name, "surename": imie_nazwisko.surname}}
+
+class im_nazw_Resp(BaseModel):
+    id: int
+    patient: Dict
+
+n=0
+@app.post("/patient", response_model=im_nazw_Resp)
+def receive_patient(rq: im_nazw):
+    global n
+    n += 1
+    slownik = im_nazw_Resp(id=n, patient=rq.dict())
+    wynik = slownik.dict()
+    return wynik
+
+
+
+
+
 
 
 
