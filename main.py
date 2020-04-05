@@ -56,10 +56,9 @@ class HelloResp(BaseModel):
     msg: str
 
 @app.get("/patient/{pk}")
-async def receive_patient(pk: str):
-    pk_int=int(pk)
-    if(pk_int in slownik_id.keys()):
-        return slownik_id[pk_int]
+async def receive_patient(pk: int):
+    if(pk in slownik_id.keys()):
+        return slownik_id[pk]
     else: 
         raise HTTPException(status_code=204) 
 
