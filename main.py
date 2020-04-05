@@ -45,7 +45,6 @@ slownik_id = {}
 def receive_patient(rq: im_nazw):
     global slownik_id
     global n
-    n += 1
     slownik_id = {n: rq}
     slownik = im_nazw_Resp(id=n, patient=rq.dict())
     wynik = slownik.dict()
@@ -53,6 +52,7 @@ def receive_patient(rq: im_nazw):
     #file = open("patient.txt", "a") 
     #file.write(wynik_str +"\n") 
     #file.close() 
+    n += 1
     return wynik
 
 class HelloResp(BaseModel):
