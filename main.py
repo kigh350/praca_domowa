@@ -59,8 +59,8 @@ class HelloResp(BaseModel):
 async def receive_patient(pk: int):
     if(pk in slownik_id.keys()):
         return slownik_id[pk]
-    else: 
-        raise HTTPException(status_code=204) 
+    #else: 
+        #raise HTTPException(status_code=204) 
 
 
 
