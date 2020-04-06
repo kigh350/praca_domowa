@@ -58,5 +58,5 @@ def read_item(pk: int):
     if pk not in lista:
         raise HTTPException(status_code=204, detail="Item not found")
     else:
-        results = patient
+        results = patient.dict()
     return results
