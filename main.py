@@ -1,62 +1,78 @@
 from typing import Dict
-from fastapi import FastAPI, HTTPException
-
+from fastapi import FastAPI, Request, Response, status
 from pydantic import BaseModel
-#import sqlite3
-#import os
+
+class Patient(BaseModel):
+    name: str
+    surename: str
+
+
 app = FastAPI()
+app.counter: int=0 # ustawiamy licznik na 0 
+app.storage: Dict[int, Patient] = {}
 
 
 @app.get("/")
 def root():
-    return {"message": "Hello World during the coronavirus pandemic!"}
+    return {"message": "Witam Cie na mojej stronie"}
 
-@app.get("/method")
-def read_item():
-    return {"method": "GET"}
+@app.get("/welcome")
+def root():
+    return {"message": "Witam Cie na mojej stronie"}
 
-@app.post("/method")
-def read_item():
-    return {"method": "POST"}
 
-@app.delete("/method")
-def read_item():
-    return {"method": "DELETE"}
+#zadanie z zajec
+@app.api_route(path="/method", methods=["GET", "POST", "DELETE", "PUT", "OPTIONS"])
+def read_request(request: Request):
+    return {"method": request.method}
 
-@app.put("/method")
-def read_item():
-    return {"method": "PUT"}
+#moje rozwiazanie zad 2
+#@app.get("/method")
+#def read_item():
+    #return {"method": "GET"}
+#@app.post("/method")
+#def read_item():
+    #return {"method": "POST"}
+#@app.delete("/method")
+#def read_item():
+    #return {"method": "DELETE"}
+#@app.put("/method")
+#def read_item():
+    #return {"method": "PUT"}
 
-class im_nazw(BaseModel):
-    name: str 
-    surename: str = "SURENAME"
+# klasa pomocnicza 
 
-patient = im_nazw(
-    name="NAME",
-    surename="SURENAME"
-)
-
-class im_nazw_Resp(BaseModel):
-    id: int
-    patient: Dict
-
-n=0
-lista=[n]
-@app.post("/patient", response_model=im_nazw_Resp)
-def receive_patient(rq: im_nazw):
-    global n
-    global wynik
-    global lista
-    n += 1
-    lista[n] = n
-    slownik = im_nazw_Resp(id=n, patient=rq.dict())
-    wynik = slownik.dict()
-    return wynik
+@app.post("/patient")
+def receive_patient(patient: Patient):
+    resp = {"id": app.counter, "patint": patient}
+    app.storage[app.counter]=patient
+    app.counter += 1 
+    return resp
 
 @app.get("/patient/{pk}")
-def read_item(pk: int):
-    if pk not in lista:
-        raise HTTPException(status_code=204, detail="Item not found")
-    else:
-        results = patient.dict()
-    return results
+def receive_patient(pk: int):
+    if(pk in app.storage):
+        return app.storage.get(pk)
+    return Response(status_code = status.HTTP_204_NO_CONTENT)
+
+
+
+
+#class im_nazw(BaseModel):
+    #name: str = "NAME"
+    #surename: str = "SURENAME"
+#class im_nazw_Resp(BaseModel):
+    #id: int
+    #patient: Dict
+
+#class im_nazw_pat(BaseModel):
+    #Dict    
+
+#n=0
+#lista=[n]
+#slownik={}
+
+#async def update_item(*, item: im_nazw):
+    #global slownik
+    #slownik = {"patient": item}
+    #return slownik
