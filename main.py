@@ -18,13 +18,12 @@ app.counter: int=0 # ustawiamy licznik na 0
 app.storage: Dict[int, Patient] = {}
 #templates = Jinja2Templates(directory = "templates")
 
-
 app.users={"trudnY":"PaC13Nt"}
 app.sessions={}
 
 @app.get("/")
 def root():
-    return {"message": "Witam Cie na mojej stronie"}
+    return {"message": "Witam Cie na mojej glownej stronie"}
 
 def check_cookie(session_token: str = Cookie(None)):
     if session_token not in app.sessions:
@@ -68,7 +67,7 @@ def create_cookie(response: Response, session_token: str = Depends(check_cookie)
         return "Brak autoryzacji"
     response.status_code = status.HTTP_302_FOUND
     response.headers["Location"] = "/"
-    app.session.pop(session_token)
+    app.sessions.pop(session_token)
 
 
 #zadanie z zajec
