@@ -1,6 +1,10 @@
 from typing import Dict
-from fastapi import FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, Request, Response, HTTPException, status, Cookie
 from pydantic import BaseModel
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
+from hashlib import sha256
+from fastapi.templating import Jinja2Templates
 
 class Patient(BaseModel):
     name: str
@@ -8,17 +12,54 @@ class Patient(BaseModel):
 
 
 app = FastAPI()
+security = HTTPBasic()
+app.secret_key = "wUYwdjICbQP70WgUpRajUwxnGChAKmRtfQgYASazava4p5In7pZpFPggdB4JDjlv"
 app.counter: int=0 # ustawiamy licznik na 0 
 app.storage: Dict[int, Patient] = {}
+templates = Jinja2Templates(directory = "templates")
 
+
+app.users={"trudnY":"PaC13Nt"}
+app.sessions={}
 
 @app.get("/")
 def root():
     return {"message": "Witam Cie na mojej stronie"}
 
+def check_cookie(session_token: str = Cookie(None)):
+    if session_token not in app.sessions:
+        session_token = None
+    return session_token
+
 @app.get("/welcome")
-def root():
-    return {"message": "Witam Cie na mojej stronie"}
+def welcome(request: Request, response: Response, session_token: str = Depends(check_cookie)):
+    if session_token is None: 
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"
+    username = app.session[session_token]
+    templates.TemplateResponse("welcome.html", {"request": request, "user": username})
+
+# sprawdzenie poprawnosci loginu i zwrocenie tokena
+
+
+def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = secrets.compare_digest(credentials.username, "trudnY")
+    correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect login or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    session_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
+    app.sessions[session_token]=credentials.username
+    return session_token
+
+@app.get("/login")
+def create_cookie(response: Response, session_token: str = Depends(get_current_username)):
+    response.status_code = status.HTTP_302_FOUND
+    response.header["Location"] = "/welcome"
+    response.set_cookie(key = "session_token", value=session_token)
 
 
 #zadanie z zajec
@@ -26,21 +67,6 @@ def root():
 def read_request(request: Request):
     return {"method": request.method}
 
-#moje rozwiazanie zad 2
-#@app.get("/method")
-#def read_item():
-    #return {"method": "GET"}
-#@app.post("/method")
-#def read_item():
-    #return {"method": "POST"}
-#@app.delete("/method")
-#def read_item():
-    #return {"method": "DELETE"}
-#@app.put("/method")
-#def read_item():
-    #return {"method": "PUT"}
-
-# klasa pomocnicza 
 
 @app.post("/patient")
 def receive_patient(patient: Patient):
@@ -54,9 +80,6 @@ def receive_patient(pk: int):
     if(pk in app.storage):
         return app.storage.get(pk)
     return Response(status_code = status.HTTP_204_NO_CONTENT)
-
-
-
 
 #class im_nazw(BaseModel):
     #name: str = "NAME"
