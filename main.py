@@ -61,6 +61,16 @@ def create_cookie(response: Response, session_token: str = Depends(get_current_u
     response.set_cookie(key = "session_token", value=session_token)
 
 
+@app.post("/logout")
+def create_cookie(response: Response, session_token: str = Depends(check_cookie)):
+    if session_token is None:                                               
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"
+    response.status_code = status.HTTP_302_FOUND
+    response.headers["Location"] = "/"
+    app.session.pop(session_token)
+
+
 #zadanie z zajec
 @app.api_route(path="/method", methods=["GET", "POST", "DELETE", "PUT", "OPTIONS"])
 def read_request(request: Request):
@@ -68,14 +78,22 @@ def read_request(request: Request):
 
 
 @app.post("/patient")
-def receive_patient(patient: Patient):
+def receive_patient(patient: Patient, response: Response, session_token: str = Depends(check_cookie)):
+    if session_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"
     resp = {"id": app.counter, "patint": patient}
     app.storage[app.counter]=patient
+    response.status_code = status.HTTP_302_FOUND
+#    response.headers["Location"] = f"/patient/{resp}"
     app.counter += 1 
     return resp
 
 @app.get("/patient/{pk}")
-def receive_patient(pk: int):
+def receive_patient(pk: int, response: Response, session_token: str = Depends(check_cookie)):
+    if session_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"       
     if(pk in app.storage):
         return app.storage.get(pk)
     return Response(status_code = status.HTTP_204_NO_CONTENT)
