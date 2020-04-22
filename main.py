@@ -16,7 +16,7 @@ security = HTTPBasic()
 app.secret_key = "wUYwdjICbQP70WgUpRajUwxnGChAKmRtfQgYASazava4p5In7pZpFPggdB4JDjlv"
 app.counter: int=0 # ustawiamy licznik na 0 
 app.storage: Dict[int, Patient] = {}
-templates = Jinja2Templates(directory = "templates")
+#templates = Jinja2Templates(directory = "templates")
 
 
 app.users={"trudnY":"PaC13Nt"}
@@ -36,9 +36,8 @@ def welcome(request: Request, response: Response, session_token: str = Depends(c
     if session_token is None: 
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "Brak autoryzacji"
-    username = app.session[session_token]
-    templates.TemplateResponse("welcome.html", {"request": request, "user": username})
-
+    username = app.sessions[session_token]
+    return {"message": "Witam Cie na mojej stronie"}
 # sprawdzenie poprawnosci loginu i zwrocenie tokena
 
 
@@ -55,10 +54,10 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     app.sessions[session_token]=credentials.username
     return session_token
 
-@app.get("/login")
+@app.post("/login")
 def create_cookie(response: Response, session_token: str = Depends(get_current_username)):
     response.status_code = status.HTTP_302_FOUND
-    response.header["Location"] = "/welcome"
+    response.headers["Location"] = "/welcome"
     response.set_cookie(key = "session_token", value=session_token)
 
 
