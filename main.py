@@ -94,7 +94,7 @@ def pacjenci(response: Response, session_token: str=Depends(check_cookie)):
     if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "Brak autoryzacji"
-    if len(app.storage) != 0: 
+    if len(app.storage) > 0: 
         return app.storage
     response.status_code = status.HTTP_204_NO_CONTENT
 
