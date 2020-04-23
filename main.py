@@ -17,7 +17,7 @@ app.secret_key = "wUYwdjICbQP70WgUpRajUwxnGChAKmRtfQgYASazava4p5In7pZpFPggdB4JDj
 app.counter: int=0 # ustawiamy licznik na 0 
 app.storage: Dict[int, Patient] = {}
 templates = Jinja2Templates(directory="templates")
-
+app.patient={}
 app.users={"trudnY":"PaC13Nt"}
 app.sessions={}
 
@@ -85,9 +85,18 @@ def receive_patient(patient: Patient, response: Response, session_token: str = D
     resp = {"id": app.counter, "patint": patient}
     app.storage[app.counter]=patient
     response.status_code = status.HTTP_302_FOUND
-#    response.headers["Location"] = f"/patient/{resp}"
+    response.headers["Location"] = f"/patient/{resp}"
     app.counter += 1 
     return resp
+
+@app.get("/patient")
+def pacjenci(response: Response, session_token: str=Depends(check_cookie)):
+    if session_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"
+    if len(app.patient) != 0: 
+        return app.patient
+    response.status_code = status.HTTP_204_NO_CONTENT
 
 @app.get("/patient/{pk}")
 def receive_patient(pk: int, response: Response, session_token: str = Depends(check_cookie)):
@@ -98,21 +107,14 @@ def receive_patient(pk: int, response: Response, session_token: str = Depends(ch
         return app.storage.get(pk)
     return Response(status_code = status.HTTP_204_NO_CONTENT)
 
-#class im_nazw(BaseModel):
-    #name: str = "NAME"
-    #surename: str = "SURENAME"
-#class im_nazw_Resp(BaseModel):
-    #id: int
-    #patient: Dict
+@app.delete("/patient/{pk}")
+def usun_patient(pk: int, response: Response, session_token: str = Depends(check_cookie)):
+    if session_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"       
+    app.patient.pop(pk, None)
+    Response(status_code = status.HTTP_204_NO_CONTENT)
 
-#class im_nazw_pat(BaseModel):
-    #Dict    
 
-#n=0
-#lista=[n]
-#slownik={}
 
-#async def update_item(*, item: im_nazw):
-    #global slownik
-    #slownik = {"patient": item}
-    #return slownik
+
