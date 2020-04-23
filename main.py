@@ -83,9 +83,10 @@ def receive_patient(patient: Patient, response: Response, session_token: str = D
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "Brak autoryzacji"
     resp = {"id": app.counter, "patint": patient}
+    pk = f"id_{app.counter}"
     app.storage[app.counter]=patient
     response.status_code = status.HTTP_302_FOUND
-    response.headers["Location"] = f"/patient/{resp}"
+    response.headers["Location"] = f"/patient/{pk}"
     app.counter += 1 
     return resp
 
