@@ -16,7 +16,7 @@ security = HTTPBasic()
 app.secret_key = "wUYwdjICbQP70WgUpRajUwxnGChAKmRtfQgYASazava4p5In7pZpFPggdB4JDjlv"
 app.counter: int=0 # ustawiamy licznik na 0 
 app.storage: Dict[int, Patient] = {}
-#templates = Jinja2Templates(directory = "templates")
+templates = Jinja2Templates(directory="templates")
 
 app.users={"trudnY":"PaC13Nt"}
 app.sessions={}
@@ -36,7 +36,8 @@ def welcome(request: Request, response: Response, session_token: str = Depends(c
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "Brak autoryzacji"
     username = app.sessions[session_token]
-    return {"message": "Witam Cie na mojej stronie"}
+    return templates.TemplateResponse("welcome.html", {"request": request, "user": username})
+
 # sprawdzenie poprawnosci loginu i zwrocenie tokena
 
 
