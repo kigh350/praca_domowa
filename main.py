@@ -17,7 +17,7 @@ app.secret_key = "wUYwdjICbQP70WgUpRajUwxnGChAKmRtfQgYASazava4p5In7pZpFPggdB4JDj
 app.counter: int=0 # ustawiamy licznik na 0 
 app.storage: Dict[int, Patient] = {}
 templates = Jinja2Templates(directory="templates")
-app.patient={}
+#app.patient={}
 app.users={"trudnY":"PaC13Nt"}
 app.sessions={}
 
@@ -94,8 +94,8 @@ def pacjenci(response: Response, session_token: str=Depends(check_cookie)):
     if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "Brak autoryzacji"
-    if len(app.patient) != 0: 
-        return app.patient
+    if len(app.storage) != 0: 
+        return app.storage
     response.status_code = status.HTTP_204_NO_CONTENT
 
 @app.get("/patient/{pk}")
@@ -112,7 +112,7 @@ def usun_patient(pk: int, response: Response, session_token: str = Depends(check
     if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "Brak autoryzacji"       
-    app.patient.pop(pk, None)
+    app.storage.pop(pk, None)
     Response(status_code = status.HTTP_204_NO_CONTENT)
 
 
