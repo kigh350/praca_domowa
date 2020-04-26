@@ -113,9 +113,8 @@ def usun_patient(pk: int, response: Response, session_token: str = Depends(check
     if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "Brak autoryzacji"       
-    app.storage.pop(pk, None)
-    Response(status_code = status.HTTP_204_NO_CONTENT)
-
-
-
+    if (pk in app.storage):
+        app.storage.pop(pk, None)
+    else: 
+        Response(status_code = status.HTTP_204_NO_CONTENT)
 
