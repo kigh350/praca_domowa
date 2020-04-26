@@ -79,9 +79,9 @@ def read_request(request: Request):
 
 @app.post("/patient")
 def receive_patient(patient: Patient, response: Response, session_token: str = Depends(check_cookie)):
-    #if session_token is None:
-        #response.status_code = status.HTTP_401_UNAUTHORIZED
-        #return "Brak autoryzacji"
+    if session_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"
     pk = f"id_{app.counter}"
     app.storage[app.counter]=patient
     #resp = {"id": app.counter, "patint": patient}
@@ -92,18 +92,18 @@ def receive_patient(patient: Patient, response: Response, session_token: str = D
 
 @app.get("/patient")
 def pacjenci(response: Response, session_token: str=Depends(check_cookie)):
-    #if session_token is None:
-        #response.status_code = status.HTTP_401_UNAUTHORIZED
-        #return "Brak autoryzacji"
+    if session_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"
     if len(app.storage) > 0: 
         return app.storage
     response.status_code = status.HTTP_204_NO_CONTENT
 
 @app.get("/patient/{pk}")
 def receive_patient(pk: int, response: Response, session_token: str = Depends(check_cookie)):
-    #if session_token is None:
-        #response.status_code = status.HTTP_401_UNAUTHORIZED
-        #return "Brak autoryzacji"       
+    if session_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "Brak autoryzacji"       
     if(pk in app.storage):
         return app.storage.get(pk)
     return Response(status_code = status.HTTP_204_NO_CONTENT)
