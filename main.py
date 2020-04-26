@@ -97,7 +97,7 @@ def pacjenci(response: Response, session_token: str=Depends(check_cookie)):
         return "Brak autoryzacji"
     if len(app.storage) > 0: 
         return app.storage
-    return response.status_code = status.HTTP_204_NO_CONTENT
+    response.status_code = status.HTTP_204_NO_CONTENT
 
 @app.get("/patient/{pk}")
 def receive_patient(pk: int, response: Response, session_token: str = Depends(check_cookie)):
