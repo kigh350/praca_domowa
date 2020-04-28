@@ -3,6 +3,7 @@ from fastapi import Depends, FastAPI, Request, Response, HTTPException, status, 
 from pydantic import BaseModel
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
+import sqlite3
 from hashlib import sha256
 from fastapi.templating import Jinja2Templates
 
@@ -20,6 +21,15 @@ templates = Jinja2Templates(directory="templates")
 #app.patient={}
 app.users={"trudnY":"PaC13Nt"}
 app.sessions={}
+
+# polaczenie i zamkniecie bazy danych
+@app.on_event("startup")
+async def startup():
+    app.db_connection = sqlite3.connect('chinook.db')
+
+@app.on_event("shutdown")
+async def shutdown():
+    app.db_connection.close()
 
 @app.get("/")
 def root():
@@ -115,4 +125,21 @@ def usun_patient(pk: int, response: Response, session_token: str = Depends(check
         return "Brak autoryzacji"       
     app.storage.pop(pk, None)
     return Response(status_code = status.HTTP_204_NO_CONTENT)
+
+# baza danych - praca domowa 4 
+
+@app.get("/tracks")
+async def root(page=0, per_page=10):
+    app.db_connection.row_factory = sqlite3.Row
+    tracks = app.db_connection.execute("SELECT * FROM tracks ORDER BY TrackId LIMIT :per_page", {'per_page': per_page}).fetchall()
+    return tracks
+
+
+
+
+
+
+
+
+
 
