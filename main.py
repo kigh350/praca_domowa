@@ -138,7 +138,7 @@ async def tracks(page=0, per_page=10):
 @app.get("/tracks/composers/")
 async def composer(composer_name: str, response: Response):
     app.db_connection.row_factory = sqlite3.Row
-    title = app.db_connection.execute("SELECT Name FROM tracks WHERE composer=:composer_name%' ORDER BY Name ", {'composer_name': composer_name}).fetchall()
+    title = app.db_connection.execute("SELECT Name FROM tracks WHERE composer=:composer_name ORDER BY Name ", {'composer_name': composer_name}).fetchall()
     if len(title)>0: 
         return title
     err = {"detail": {"error": "nie znaleziono kompozytora"}}
