@@ -143,7 +143,41 @@ async def composer(composer_name: str, response: Response):
         return title
     err = {"detail": {"error": "nie znaleziono kompozytora"}}
     return JSONResponse(status_code = status.HTTP_404_NOT_FOUND, content=err)
-    
+
+class Album(BaseModel):
+    title: str
+    artist_id: int
+        
+@app.post("/albums")
+async def albums_add(album: Album):
+    artist_id=album.artist_id
+    app.db_connection.row_factory = sqlite3.Row
+    artist = app.db_connection.execute("SELECT artistid FROM artists where artistid=:artist_id", {'artist_id': artist_id}).fetchall()
+    cursor = app.db_connection.execute(
+        "INSERT INTO albums (title, artistId) VALUES (?, ?)", (album.title, album.artist_id)
+        )
+    app.db_connection.commit()
+    new_album_id = cursor.lastrowid
+    app.db_connection.row_factory = sqlite3.Row
+    album_new = app.db_connection.execute(
+    """SELECT albumid, title, artistid 
+    FROM albums WHERE albumId = ?""",
+    (new_album_id, )).fetchone()
+    if len(artist)>0: 
+        return JSONResponse(status_code = status.HTTP_201_NOT_FOUND, content=album_new)
+#    return album_new
+    err = {"detail": {"error": "nie znaleziono kompozytora"}}
+    return JSONResponse(status_code = status.HTTP_404_NOT_FOUND, content=err)
+
+@app.get("/albums/{albumid}")
+async def album(albumid: int):
+    app.db_connection.row_factory = sqlite3.Row
+    album = app.db_connection.execute("SELECT * FROM albums WHERE albumid =:albumid", {'albumid': albumid,}).fetchall()
+    return album
+
+
+
+
     
     
 #:track_id",
