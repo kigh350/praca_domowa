@@ -129,9 +129,9 @@ def usun_patient(pk: int, response: Response, session_token: str = Depends(check
 # baza danych - praca domowa 4 
 
 @app.get("/tracks")
-async def root(page=0, per_page=10):
+async def tracks(page=0, per_page=10):
     app.db_connection.row_factory = sqlite3.Row
-    tracks = app.db_connection.execute("SELECT * FROM tracks ORDER BY TrackId LIMIT :per_page", {'per_page': per_page}).fetchall()
+    tracks = app.db_connection.execute("SELECT * FROM tracks ORDER BY TrackId LIMIT :per_page OFFSET :per_page*:page", {'per_page': per_page, 'page': page}).fetchall()
     return tracks
 
 
