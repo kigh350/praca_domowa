@@ -6,6 +6,7 @@ import secrets
 import sqlite3
 from hashlib import sha256
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import JSONResponse
 
 class Patient(BaseModel):
     name: str
@@ -134,8 +135,19 @@ async def tracks(page=0, per_page=10):
     tracks = app.db_connection.execute("SELECT * FROM tracks ORDER BY TrackId LIMIT :per_page OFFSET :per_page*:page", {'per_page': per_page, 'page': page}).fetchall()
     return tracks
 
-
-
+@app.get("/tracks/composers/")
+async def composer(composer_name: str, response: Response):
+    app.db_connection.row_factory = sqlite3.Row
+    title = app.db_connection.execute("SELECT Name FROM tracks WHERE composer=:composer_name%' ORDER BY Name ", {'composer_name': composer_name}).fetchall()
+    if len(title)>0: 
+        return title
+    err = {"detail": {"error": "nie znaleziono kompozytora"}}
+    return JSONResponse(status_code = status.HTTP_404_NOT_FOUND, content=err)
+    
+    
+    
+#:track_id",
+#        {'track_id': track_id}
 
 
 
