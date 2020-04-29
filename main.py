@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 import sqlite3
+import json
 from hashlib import sha256
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
@@ -150,7 +151,7 @@ class Album(BaseModel):
         
 @app.post("/albums")
 async def albums_add(album: Album):
-    artist_id=album.artist_id
+    #artist_id=10
     app.db_connection.row_factory = sqlite3.Row
     artist = app.db_connection.execute("SELECT artistid FROM artists where artistid=:artist_id", {'artist_id': artist_id}).fetchall()
     cursor = app.db_connection.execute(
@@ -158,14 +159,15 @@ async def albums_add(album: Album):
         )
     app.db_connection.commit()
     new_album_id = cursor.lastrowid
-    app.db_connection.row_factory = sqlite3.Row
+    app.db_connection.row_factory = lambda cursor, x: x[:3]
     album_new = app.db_connection.execute(
     """SELECT albumid, title, artistid 
     FROM albums WHERE albumId = ?""",
-    (new_album_id, )).fetchone()
+    (new_album_id, )).fetchall()
+    #album_new=json.dumps(album_new)
     if len(artist)>0: 
-        return JSONResponse(status_code = status.HTTP_201_NOT_FOUND, content=album_new)
-#    return album_new
+        return JSONResponse(status_code = status.HTTP_201_CREATED, content=album_new)
+        #return album_new
     err = {"detail": {"error": "nie znaleziono kompozytora"}}
     return JSONResponse(status_code = status.HTTP_404_NOT_FOUND, content=err)
 
