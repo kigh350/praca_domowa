@@ -150,10 +150,10 @@ class Album(BaseModel):
     artist_id: int
         
 @app.post("/albums")
-async def albums_add(album: Album):
-    #artist_id=10
+async def albums_add(album: Album, response: Response):
+    album.artist_id = 100
     app.db_connection.row_factory = sqlite3.Row
-    artist = app.db_connection.execute("SELECT artistid FROM artists where artistid=:artist_id", {'artist_id': artist_id}).fetchall()
+    artist = app.db_connection.execute("SELECT artistid FROM artists where artistid=:artist_id", {'artist_id': album.artist_id}).fetchall()
     cursor = app.db_connection.execute(
         "INSERT INTO albums (title, artistId) VALUES (?, ?)", (album.title, album.artist_id)
         )
@@ -164,10 +164,9 @@ async def albums_add(album: Album):
     """SELECT albumid, title, artistid 
     FROM albums WHERE albumId = ?""",
     (new_album_id, )).fetchall()
-    #album_new=json.dumps(album_new)
-    if len(artist)>0: 
-        return JSONResponse(status_code = status.HTTP_201_CREATED, content=album_new)
-        #return album_new
+    if len(artist)>0:
+        response.status_code = status.HTTP_201_CREATED
+        return {"AlbumId": cursor.lastrowid, "Title": album.title, "ArtistId": album.artist_id}
     err = {"detail": {"error": "nie znaleziono kompozytora"}}
     return JSONResponse(status_code = status.HTTP_404_NOT_FOUND, content=err)
 
