@@ -173,9 +173,8 @@ async def albums_add(album: Album, response: Response):
 @app.get("/albums/{albumid}")
 async def album(albumid: int):
     app.db_connection.row_factory = sqlite3.Row
-    album = app.db_connection.execute("SELECT * FROM albums WHERE albumid =:albumid", {'albumid': albumid,}).fetchall()
+    album = app.db_connection.execute("SELECT * FROM albums WHERE albumid =:albumid", {'albumid': albumid,}).fetchone()
     return album
-
 
 
 
