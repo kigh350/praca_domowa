@@ -151,7 +151,7 @@ class Album(BaseModel):
         
 @app.post("/albums")
 async def albums_add(album: Album, response: Response):
-    album.artist_id = 100
+#    album.artist_id = 100
     app.db_connection.row_factory = sqlite3.Row
     artist = app.db_connection.execute("SELECT artistid FROM artists where artistid=:artist_id", {'artist_id': album.artist_id}).fetchall()
     cursor = app.db_connection.execute(
