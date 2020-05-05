@@ -8,6 +8,7 @@ import json
 from hashlib import sha256
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
+#from fastapi.encoders import jsonable_encoder
 
 class Patient(BaseModel):
     name: str
@@ -177,14 +178,39 @@ async def album(albumid: int):
     return album
 
 
-
+class Customer(BaseModel):
+    company: str = None
+    address: str = None
+    city: str = None
+    state: str = None
+    country: str = None
+    postalcode: str = None
+    fax: str = None
     
-    
-#:track_id",
-#        {'track_id': track_id}
-
-
-
+@app.put("/customers/{cust_id}")
+async def change_customers(cust_id: int, customer: Customer):
+    app.db_connection.row_factory = sqlite3.Row
+    cust = app.db_connection.execute("SELECT * FROM customers where customerid=:customer_id", {'customer_id': cust_id}).fetchall()
+    if len(cust)==0:
+        err = {"detail": {"error": "nie znaleziono klienta"}}
+        return JSONResponse(status_code = status.HTTP_404_NOT_FOUND, content=err)
+    update_customer = customer.dict(exclude_unset=True)
+    values = list(update_customer.values())
+    if len(values) != 0:
+        values.append(cust_id)
+        query = "UPDATE customers SET "
+        for key, value in update_customer.items():
+            key.capitalize()
+            if key == "Postalcode":
+                key = "PostalCode"
+            query += f"{key}=?, "
+        query = query[:-2]
+        query += " WHERE CustomerId = ?"
+        cursor = app.db_connection.execute(query, tuple(values))
+        app.db_connection.commit()
+    app.db_connection.row_factory = sqlite3.Row
+    customer_new = app.db_connection.execute("SELECT * FROM customers WHERE CustomerId = ?",(cust_id, )).fetchone()
+    return customer_new   
 
 
 
