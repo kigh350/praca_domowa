@@ -194,22 +194,22 @@ async def change_customers(cust_id: int, customer: Customer):
     if len(cust)==0:
         err = {"detail": {"error": "nie znaleziono klienta"}}
         return JSONResponse(status_code = status.HTTP_404_NOT_FOUND, content=err)
-    #update_customer = customer.dict(exclude_unset=True)
-    #values = list(update_customer.values())
-    #if len(values) != 0:
-        #values.append(cust_id)
-        #query = "UPDATE customers SET "
-        #for key, value in update_customer.items():
-            #key.capitalize()
-            #if key == "Postalcode":
-                #key = "PostalCode"
-            #query += f"{key}=?, "
-        #query = query[:-2]
-        #query += " WHERE CustomerId = ?"
-        #cursor = app.db_connection.execute(query, tuple(values))
-        #app.db_connection.commit()
-    #app.db_connection.row_factory = sqlite3.Row
-    #customer_new = app.db_connection.execute("SELECT * FROM customers WHERE CustomerId = ?",(cust_id, )).fetchone()
+    update_customer = customer.dict(exclude_unset=True)
+    values = list(update_customer.values())
+    if len(values) != 0:
+        values.append(cust_id)
+        query = "UPDATE customers SET "
+        for key, value in update_customer.items():
+            key.capitalize()
+            if key == "Postalcode":
+                key = "PostalCode"
+            query += f"{key}=?, "
+        query = query[:-2]
+        query += " WHERE CustomerId = ?"
+        cursor = app.db_connection.execute(query, tuple(values))
+        app.db_connection.commit()
+    app.db_connection.row_factory = sqlite3.Row
+    customer_new = app.db_connection.execute("SELECT * FROM customers WHERE CustomerId = ?",(cust_id, )).fetchone()
     return cust   
 
 
