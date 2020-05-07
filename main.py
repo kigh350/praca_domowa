@@ -179,13 +179,13 @@ async def album(albumid: int):
 
 
 class Customer(BaseModel):
-    company: str = None
-    address: str = None
-    city: str = None
-    state: str = None
-    country: str = None
-    postalcode: str = None
-    fax: str = None
+    Company: str = None
+    Address: str = None
+    City: str = None
+    State: str = None
+    Country: str = None
+    Postalcode: str = None
+    Fax: str = None
     
 @app.put("/customers/{cust_id}")
 async def change_customers(cust_id: int, customer: Customer):
@@ -208,9 +208,9 @@ async def change_customers(cust_id: int, customer: Customer):
         query += " WHERE CustomerId = ?"
         cursor = app.db_connection.execute(query, tuple(values))
         app.db_connection.commit()
-    app.db_connection.row_factory = sqlite3.Row
-    customer_new = app.db_connection.execute("SELECT * FROM customers WHERE CustomerId = ?",(cust_id, )).fetchone()
-    return cust   
+        app.db_connection.row_factory = sqlite3.Row
+        customer_new = app.db_connection.execute("SELECT * FROM customers WHERE CustomerId = ?",(cust_id, )).fetchone()
+    return customer_new   
 
 
 
