@@ -199,16 +199,38 @@ async def change_customers(cust_id: int, customer: Customer):
     cust_update = app.db_connection.execute("UPDATE customers SET Company =?,Address =?, City=?, State=?, Country=?, Postalcode=?, Fax=? where customerid=?", (customer.company, customer.address, customer.city,  customer.state, customer.country, customer.postalcode, customer.fax, cust_id))
     app.db_connection.commit()
     app.db_connection.row_factory = sqlite3.Row
-    customer_new = app.db_connection.execute("SELECT * FROM customers where customerid=:customer_id", {'customer_id': cust_id}).fetchone()
+    customer_new = app.db_connection.execute("SELECT * FROM customers where customerid=:customer_id", {'customer_id': cust_id}).fetchall()
     return customer_new
+
+@app.get("/sales")
+async def tracks_composers(response: Response, category: str):
+    if category == "customers":
+        app.db_connection.row_factory = sqlite3.Row
+        stats = app.db_connection.execute(
+            "SELECT invoices.CustomerId, Email, Phone, ROUND(SUM(Total), 2) AS Sum FROM invoices JOIN customers on invoices.CustomerId = customers.CustomerId GROUP BY invoices.CustomerId ORDER BY Sum DESC,  invoices.CustomerId").fetchall()
+        return stats
+    else:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"detail":{"error":"Unsuported category."}}
+
+
+
+
+	#if category == "genres":
+		#app.db_connection.row_factory = sqlite3.Row
+		#cursor = await app.db_connection.execute(
+			#"SELECT genres.Name, SUM(Quantity) AS Sum FROM invoice_items "
+			#"JOIN tracks ON invoice_items.TrackId = tracks.TrackId "
+			#"JOIN genres ON tracks.GenreId = genres.GenreId "
+			#"GROUP BY tracks.GenreId ORDER BY Sum DESC, genres.Name")
+		#stats = await cursor.fetchall()
+		#return stats
+
+
 
 
 
 # where customerid=:customer_id", {'firma':customer.company,   'customer_id': cust_id}
-
-
-
-
  #if len(values) != 0:
         #values.append(cust_id)
         #query = "UPDATE customers SET "
