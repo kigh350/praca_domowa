@@ -209,6 +209,11 @@ async def tracks_composers(response: Response, category: str):
         stats = app.db_connection.execute(
             "SELECT invoices.CustomerId, Email, Phone, ROUND(SUM(Total), 2) AS Sum FROM invoices JOIN customers on invoices.CustomerId = customers.CustomerId GROUP BY invoices.CustomerId ORDER BY Sum DESC,  invoices.CustomerId").fetchall()
         return stats
+    if category == "genres":
+        app.db_connection.row_factory = sqlite3.Row
+        stats = app.db_connection.execute(
+            "SELECT genres.Name, SUM(Quantity) AS Sum FROM invoice_items JOIN tracks ON invoice_items.TrackId = tracks.TrackId JOIN genres ON tracks.GenreId = genres.GenreId GROUP BY tracks.GenreId ORDER BY Sum DESC, genres.Name").fetchall()
+        return stats    
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"detail":{"error":"Unsuported category."}}
@@ -216,15 +221,7 @@ async def tracks_composers(response: Response, category: str):
 
 
 
-	#if category == "genres":
-		#app.db_connection.row_factory = sqlite3.Row
-		#cursor = await app.db_connection.execute(
-			#"SELECT genres.Name, SUM(Quantity) AS Sum FROM invoice_items "
-			#"JOIN tracks ON invoice_items.TrackId = tracks.TrackId "
-			#"JOIN genres ON tracks.GenreId = genres.GenreId "
-			#"GROUP BY tracks.GenreId ORDER BY Sum DESC, genres.Name")
-		#stats = await cursor.fetchall()
-		#return stats
+
 
 
 
